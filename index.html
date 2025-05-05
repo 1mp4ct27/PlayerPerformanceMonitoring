@@ -77,6 +77,7 @@
     font-size: 1.1em;
     cursor: pointer;
     transition: background-color 0.25s ease-in-out;
+    margin-bottom: 10px;
   }
   button:hover {
     background: #9f6ff1;
@@ -132,6 +133,10 @@
     color:#000;
     margin-bottom: 20px;
   }
+  #clearDataBtn {
+    background: #cf6679;
+    color: #fff;
+  }
 
   /* Responsive typography and spacing */
   @media (max-width: 400px) {
@@ -141,6 +146,7 @@
     button {
       font-size: 1em;
       padding: 8px 0;
+      margin-bottom: 10px;
     }
   }
 
@@ -183,6 +189,7 @@
     button {
       font-size: 1.2em;
       padding: 12px 0;
+      margin-bottom: 15px;
     }
     /* Main content flex - table and charts */
     .main-content {
@@ -218,7 +225,12 @@
     #exportExcelBtn {
       width: 200px;
       align-self: flex-start;
-      margin-bottom: 0;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    #clearDataBtn {
+      width: 200px;
+      align-self: flex-start;
       font-size: 1.1em;
     }
   }
@@ -275,7 +287,8 @@
         <canvas id="pointsOverTimeChart" aria-label="Points Over Time Chart" role="img" ></canvas>
       </div>
 
-      <button id="exportExcelBtn" style="background:#03dac6; color:#000; margin-bottom: 20px;">Export to Excel</button>
+      <button id="exportExcelBtn">Export to Excel</button>
+      <button id="clearDataBtn">Clear Data</button>
     </div>
 </div>
 
@@ -288,6 +301,7 @@
   const form = document.getElementById('input-form');
   const tableBody = document.querySelector('#performance-table tbody');
   const exportBtn = document.getElementById('exportExcelBtn');
+  const clearBtn = document.getElementById('clearDataBtn');
   let winRatioChart;
   let pointsOverTimeChart;
 
@@ -516,10 +530,20 @@
     XLSX.writeFile(wb, 'Player_Performance_Monitoring.xlsx');
   });
 
-  // Load data when page loads
+  clearBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all performance data? This action cannot be undone.')) {
+      performanceData = [];
+      saveData();
+      updateTable();
+      updateCharts();
+    }
+  });
+
+  // Load data initially
   loadData();
   updateTable();
   updateCharts();
 </script>
 </body>
 </html>
+
