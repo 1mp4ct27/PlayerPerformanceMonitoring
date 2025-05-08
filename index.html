@@ -1,549 +1,598 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Player Performance Monitoring</title>
-<style>
-  /* Reset and base */
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
-    color: #eee;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    user-select: none;
-  }
-  h1 {
-    margin-bottom: 0.3em;
-    font-weight: 700;
-    font-size: 1.6em;
-    color: #bb86fc;
-    text-align: center;
-  }
-
-  /* Container holds form and main content */
-  .container {
-    width: 100%;
-    max-width: 350px;
-  }
-
-  /* Form styles */
-  form {
-    background: #1e1e1e;
-    border-radius: 10px;
-    padding: 12px 15px;
-    margin-bottom: 14px;
-  }
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 4px;
-    font-size: 0.9em;
-  }
-  input[type="text"],
-  input[type="number"],
-  input[type="date"] {
-    width: 100%;
-    background: #2c2c2c;
-    border: none;
-    border-radius: 6px;
-    color: #eee;
-    padding: 7px 10px;
-    margin-bottom: 12px;
-    font-size: 1em;
-    font-weight: 500;
-  }
-  input[type="number"]::-webkit-inner-spin-button, 
-  input[type="number"]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
-  }
-  button {
-    width: 100%;
-    background: #bb86fc;
-    color: #121212;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 0;
-    font-weight: 700;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background-color 0.25s ease-in-out;
-    margin-bottom: 10px;
-  }
-  button:hover {
-    background: #9f6ff1;
-  }
-
-  /* Table styling */
-  .table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    margin-bottom: 15px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85em;
-  }
-  thead {
-    background: #3700b3;
-  }
-  thead th {
-    padding: 9px 7px;
-    color: #fff;
-    white-space: nowrap;
-  }
-  tbody tr:nth-child(odd) {
-    background: #222;
-  }
-  tbody tr:nth-child(even) {
-    background: #2a2a2a;
-  }
-  tbody td {
-    padding: 7px 8px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  /* Chart containers */
-  .chart-container {
-    width: 100%;
-    background: #1e1e1e;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-  }
-  canvas {
-    width: 100% !important;
-    height: 300px !important;
-  }
-
-  /* Export button styling and consistent spacing */
-  #exportExcelBtn {
-    background:#03dac6;
-    color:#000;
-    margin-bottom: 20px;
-  }
-  #clearDataBtn {
-    background: #cf6679;
-    color: #fff;
-  }
-
-  /* Responsive typography and spacing */
-  @media (max-width: 400px) {
-    h1 {
-      font-size: 1.3em;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Player Performance Monitoring - Multiple Games</title>
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
     }
-    button {
-      font-size: 1em;
-      padding: 8px 0;
-      margin-bottom: 10px;
-    }
-  }
-
-  /* DESKTOP STYLES */
-  @media (min-width: 601px) {
     body {
-      background: #0d0d0d;
-      padding: 30px;
-      align-items: stretch;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      user-select: none;
     }
     h1 {
-      font-size: 2em;
-      margin-bottom: 1em;
+      margin-bottom: 0.3em;
+      font-weight: 700;
+      font-size: 1.6em;
+      color: #bb86fc;
+      text-align: center;
     }
+
     .container {
+      width: 100%;
       max-width: 1000px;
       display: flex;
-      gap: 20px;
-      padding: 0 15px;
-      margin: 0 auto;
+      flex-direction: column;
+      gap: 10px;
     }
-    /* Form on left side, scroll if needed */
+
+    /* Tab buttons for game selection */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .tab-btn {
+      cursor: pointer;
+      padding: 8px 16px;
+      background-color: #3700b3;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1em;
+      transition: background-color 0.25s ease-in-out;
+    }
+    .tab-btn.active {
+      background-color: #bb86fc;
+      color: #121212;
+    }
+
+    /* Layout to have form and charts side by side */
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    @media(min-width: 800px) {
+      .content {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+
+    /* Form styles */
     form {
-      flex: 1 1 300px;
-      margin-bottom: 0;
-      max-height: 600px;
-      overflow-y: auto;
-      position: sticky;
-      top: 20px;
-      align-self: flex-start;
+      background: #1e1e1e;
+      border-radius: 10px;
       padding: 20px;
-      font-size: 1.05em;
+      flex: 1 1 400px;
+      min-width: 280px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 0.9em;
     }
     input[type="text"],
     input[type="number"],
     input[type="date"] {
-      font-size: 1.05em;
-      padding: 10px 12px;
+      width: 100%;
+      background: #2c2c2c;
+      border: none;
+      border-radius: 6px;
+      color: #eee;
+      padding: 7px 10px;
+      margin-bottom: 12px;
+      font-size: 1em;
+      font-weight: 500;
+    }
+    input[type="number"]::-webkit-inner-spin-button, 
+    input[type="number"]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
     }
     button {
-      font-size: 1.2em;
-      padding: 12px 0;
-      margin-bottom: 15px;
+      width: 100%;
+      background: #bb86fc;
+      color: #121212;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      font-weight: 700;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.25s ease-in-out;
+      margin-bottom: 10px;
     }
-    /* Main content flex - table and charts */
+    button:hover {
+      background: #9f6ff1;
+    }
+
+    /* Right side container for table + charts + buttons */
     .main-content {
-      flex: 2 1 650px;
+      flex: 1 1 600px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-      max-height: 600px;
+      gap: 15px;
+      min-width: 320px;
     }
+
     .table-wrapper {
-      max-height: 250px;
+      width: 100%;
+      overflow-x: auto;
+      max-height: 220px;
       overflow-y: auto;
-      margin-bottom: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px #4b2cfc88;
+      background: #1e1e1e;
     }
     table {
-      font-size: 0.95em;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85em;
     }
-    thead th,
+    thead {
+      background: #3700b3;
+    }
+    thead th {
+      padding: 9px 7px;
+      color: #fff;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(odd) {
+      background: #222;
+    }
+    tbody tr:nth-child(even) {
+      background: #2a2a2a;
+    }
     tbody td {
-      padding: 12px 10px;
+      padding: 7px 8px;
+      text-align: center;
+      white-space: nowrap;
     }
 
     .chart-container {
-      height: 350px;
-      margin-bottom: 20px;
+      width: 100%;
+      background: #1e1e1e;
+      padding: 12px;
+      border-radius: 10px;
       box-shadow: 0 0 12px #bb86fc88;
     }
     canvas {
-      height: 100% !important;
+      width: 100% !important;
+      height: 300px !important;
     }
+
     #exportExcelBtn {
-      width: 200px;
-      align-self: flex-start;
-      margin-bottom: 20px;
-      font-size: 1.1em;
+      background:#03dac6;
+      color:#000;
+      font-weight: 700;
+      padding: 12px 0;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      width: 48%;
     }
     #clearDataBtn {
-      width: 200px;
-      align-self: flex-start;
-      font-size: 1.1em;
+      background: #cf6679;
+      color: #fff;
+      font-weight: 700;
+      padding: 12px 0;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      width: 48%;
     }
-  }
-</style>
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 4%;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 799px) {
+      .content {
+        flex-direction: column;
+      }
+      .main-content {
+        min-width: auto;
+      }
+      #exportExcelBtn,
+      #clearDataBtn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .button-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      h1 {
+        font-size: 1.3em;
+      }
+      button {
+        font-size: 1em;
+        padding: 8px 0;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-<h1>Player Performance Monitoring</h1>
-<div class="container">
-    <form id="input-form" autocomplete="off" aria-label="Add player performance data form">
-      <label for="playerName">Player Name</label>
-      <input type="text" id="playerName" required placeholder="Enter player name" />
-
-      <label for="matchesPlayed">Matches Played</label>
-      <input type="number" id="matchesPlayed" min="0" required placeholder="0" />
-
-      <label for="wins">Wins</label>
-      <input type="number" id="wins" min="0" required placeholder="0" />
-
-      <label for="losses">Losses</label>
-      <input type="number" id="losses" min="0" required placeholder="0" />
-
-      <label for="points">Points</label>
-      <input type="number" id="points" min="0" required placeholder="0" />
-
-      <label for="date">Date</label>
-      <input type="date" id="date" required />
-
-      <button type="submit">Add Performance Data</button>
-    </form>
-    <div class="main-content" aria-live="polite">
-      <div class="table-wrapper">
-        <table id="performance-table" aria-label="Player Performance Data">
-          <thead>
-            <tr>
-              <th>Player Name</th>
-              <th>Matches</th>
-              <th>Wins</th>
-              <th>Losses</th>
-              <th>Points</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- populated dynamically -->
-          </tbody>
-        </table>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="winRatioChart" aria-label="Win Ratio Chart" role="img" ></canvas>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="pointsOverTimeChart" aria-label="Points Over Time Chart" role="img" ></canvas>
-      </div>
-
-      <button id="exportExcelBtn">Export to Excel</button>
-      <button id="clearDataBtn">Clear Data</button>
+  <h1>Player Performance Monitoring</h1>
+  <div class="container">
+    <div class="tabs" role="tablist" aria-label="Game selection tabs">
+      <button class="tab-btn active" role="tab" aria-selected="true" tabindex="0" data-game="pokemon">Pokemon</button>
+      <button class="tab-btn" role="tab" aria-selected="false" tabindex="-1" data-game="cookie-run">Cookie Run</button>
+      <button class="tab-btn" role="tab" aria-selected="false" tabindex="-1" data-game="beyblade">Beyblade</button>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script>
-  let performanceData = [];
-  const STORAGE_KEY = 'tcgPerformanceData';
+    <div class="content">
+      <form id="input-form" autocomplete="off" aria-label="Add player performance data form" novalidate>
+        <label for="playerName">Player Name</label>
+        <input type="text" id="playerName" required placeholder="Enter player name" />
 
-  const form = document.getElementById('input-form');
-  const tableBody = document.querySelector('#performance-table tbody');
-  const exportBtn = document.getElementById('exportExcelBtn');
-  const clearBtn = document.getElementById('clearDataBtn');
-  let winRatioChart;
-  let pointsOverTimeChart;
+        <label for="matchesPlayed">Matches Played</label>
+        <input type="number" id="matchesPlayed" min="0" required placeholder="0" />
 
-  function formatDate(dateStr) {
-    const d = new Date(dateStr);
-    if(isNaN(d)) return '';
-    return d.toLocaleDateString();
-  }
+        <label for="wins">Wins</label>
+        <input type="number" id="wins" min="0" required placeholder="0" />
 
-  function saveData() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(performanceData));
-    } catch (e) {
-      console.warn('Failed to save data to localStorage', e);
+        <label for="losses">Losses</label>
+        <input type="number" id="losses" min="0" required placeholder="0" />
+
+        <label for="points">Points</label>
+        <input type="number" id="points" min="0" required placeholder="0" />
+
+        <label for="date">Date</label>
+        <input type="date" id="date" required />
+
+        <button type="submit">Add Performance Data</button>
+      </form>
+
+      <div class="main-content" aria-live="polite">
+        <div class="table-wrapper">
+          <table id="performance-table" aria-label="Player Performance Data">
+            <thead>
+              <tr>
+                <th>Player Name</th>
+                <th>Matches</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>Points</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="winRatioChart" aria-label="Win Ratio Chart" role="img"></canvas>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="pointsOverTimeChart" aria-label="Points Over Time Chart" role="img"></canvas>
+        </div>
+
+        <div class="button-row">
+          <button id="exportExcelBtn" type="button">Export to Excel</button>
+          <button id="clearDataBtn" type="button">Clear Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script>
+    let allPerformanceData = {};
+    const STORAGE_KEY = 'tcgMultiGamePerformance';
+    let currentGame = 'pokemon';
+
+    const form = document.getElementById('input-form');
+    const tableBody = document.querySelector('#performance-table tbody');
+    const exportBtn = document.getElementById('exportExcelBtn');
+    const clearBtn = document.getElementById('clearDataBtn');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+
+    let winRatioChart;
+    let pointsOverTimeChart;
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      if (isNaN(d)) return '';
+      return d.toLocaleDateString();
     }
-  }
 
-  function loadData() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          performanceData = parsed;
-        }
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allPerformanceData));
+      } catch (e) {
+        console.warn('Failed to save data to localStorage', e);
       }
-    } catch (e) {
-      console.warn('Failed to load data from localStorage', e);
     }
-  }
 
-  function addPerformanceEntry(entry) {
-    performanceData.push(entry);
-    saveData();
-    updateTable();
-    updateCharts();
-  }
-
-  function updateTable() {
-    tableBody.innerHTML = '';
-    performanceData.forEach(({ playerName, matchesPlayed, wins, losses, points, date }) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${playerName}</td>
-        <td>${matchesPlayed}</td>
-        <td>${wins}</td>
-        <td>${losses}</td>
-        <td>${points}</td>
-        <td>${formatDate(date)}</td>
-      `;
-      tableBody.appendChild(row);
-    });
-  }
-
-  function aggregateDataForCharts() {
-    const grouped = {};
-    performanceData.forEach(({ playerName, matchesPlayed, wins, losses, points, date }) => {
-      if (!grouped[playerName]) {
-        grouped[playerName] = { matches: 0, wins: 0, losses: 0, totalPoints: 0, dates: [], pointsByDate: {} };
-      }
-      grouped[playerName].matches += +matchesPlayed;
-      grouped[playerName].wins += +wins;
-      grouped[playerName].losses += +losses;
-      grouped[playerName].totalPoints += +points;
-      if (!grouped[playerName].pointsByDate[date]){
-        grouped[playerName].pointsByDate[date] = 0;
-      }
-      grouped[playerName].pointsByDate[date] += +points;
-      if (!grouped[playerName].dates.includes(date)) {
-        grouped[playerName].dates.push(date);
-      }
-    });
-    return grouped;
-  }
-
-  function updateCharts() {
-    const aggregated = aggregateDataForCharts();
-
-    const players = Object.keys(aggregated);
-    const winRatios = players.map(name => {
-      const player = aggregated[name];
-      if (player.matches === 0) return 0;
-      return ((player.wins / player.matches) * 100).toFixed(1);
-    });
-
-    if (winRatioChart) winRatioChart.destroy();
-    const ctxWin = document.getElementById('winRatioChart').getContext('2d');
-    winRatioChart = new Chart(ctxWin, {
-      type: 'bar',
-      data: {
-        labels: players,
-        datasets: [{
-          label: 'Win %',
-          data: winRatios,
-          backgroundColor: '#bb86fc',
-          borderRadius: 4,
-          barPercentage: 0.6,
-          minBarLength: 3
-        }]
-      },
-      options: {
-        responsive: true,
-        animation: { duration: 500 },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: { stepSize: 20, color: '#ccc' },
-            title: { display: true, text: 'Win Percentage', color: '#bb86fc' },
-            grid: { color: '#333' }
-          },
-          x: {
-            ticks: { color: '#eee', maxRotation: 45, minRotation: 30 },
-            grid: { display: false }
-          }
-        },
-        plugins: {
-          legend: { labels: { color: '#bb86fc' } },
-          tooltip: {
-            backgroundColor: '#333',
-            titleColor: '#bb86fc',
-            bodyColor: '#eee'
+    function loadData() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (typeof parsed === 'object') {
+            allPerformanceData = parsed;
           }
         }
+      } catch (e) {
+        console.warn('Failed to load data from localStorage', e);
       }
-    });
-
-    let allDatesSet = new Set();
-    players.forEach(name => {
-      aggregated[name].dates.forEach(d => allDatesSet.add(d));
-    });
-    const allDates = Array.from(allDatesSet).sort();
-
-    const datasetsPoints = players.map((name, idx) => {
-      const pdata = aggregated[name];
-      const pointsArr = allDates.map(date => pdata.pointsByDate[date] || 0);
-      const colorHue = (idx * 360 / players.length) % 360;
-      return {
-        label: name,
-        data: pointsArr,
-        borderColor: `hsl(${colorHue}, 70%, 70%)`,
-        backgroundColor: `hsla(${colorHue}, 70%, 70%, 0.3)`,
-        fill: true,
-        tension: 0.3,
-        pointRadius: 3,
-        pointHoverRadius: 6,
-        borderWidth: 2
-      };
-    });
-
-    if (pointsOverTimeChart) pointsOverTimeChart.destroy();
-    const ctxPoints = document.getElementById('pointsOverTimeChart').getContext('2d');
-    pointsOverTimeChart = new Chart(ctxPoints, {
-      type: 'line',
-      data: {
-        labels: allDates.map(d => formatDate(d)),
-        datasets: datasetsPoints
-      },
-      options: {
-        responsive: true,
-        animation: { duration: 700 },
-        interaction: { mode: 'nearest', intersect: false },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { color: '#ccc' },
-            grid: { color: '#333' },
-            title: { display: true, text: 'Points', color: '#bb86fc' }
-          },
-          x: {
-            ticks: { maxRotation: 45, minRotation: 30, color: '#eee' },
-            grid: { display: false },
-            title: { display: true, text: 'Date', color: '#bb86fc' }
-          }
-        },
-        plugins: {
-          legend: { display: true, position: 'top', labels: { color: '#bb86fc' } },
-          tooltip: {
-            backgroundColor: '#333',
-            titleColor: '#bb86fc',
-            bodyColor: '#eee'
-          }
-        }
+      if (!allPerformanceData[currentGame]) {
+        allPerformanceData[currentGame] = [];
       }
-    });
-  }
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const playerName = form.playerName.value.trim();
-    const matchesPlayed = Number(form.matchesPlayed.value);
-    const wins = Number(form.wins.value);
-    const losses = Number(form.losses.value);
-    const points = Number(form.points.value);
-    const date = form.date.value;
-
-    if (!playerName || matchesPlayed < 0 || wins < 0 || losses < 0 || points < 0 || !date) {
-      alert('Please enter valid values for all fields.');
-      return;
-    }
-    if (wins + losses > matchesPlayed) {
-      alert('Wins + Losses cannot exceed Matches Played.');
-      return;
     }
 
-    const newEntry = { playerName, matchesPlayed, wins, losses, points, date };
-    addPerformanceEntry(newEntry);
-
-    form.reset();
-  });
-
-  exportBtn.addEventListener('click', () => {
-    if(performanceData.length === 0) {
-      alert('Add some performance data first!');
-      return;
+    function getCurrentData() {
+      if (!allPerformanceData[currentGame]) allPerformanceData[currentGame] = [];
+      return allPerformanceData[currentGame];
     }
-    const wsData = [
-      ['Player Name', 'Matches Played', 'Wins', 'Losses', 'Points', 'Date'],
-      ...performanceData.map(({ playerName, matchesPlayed, wins, losses, points, date }) =>
-        [playerName, matchesPlayed, wins, losses, points, date]
-      )
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Performance Data');
-    XLSX.writeFile(wb, 'Player_Performance_Monitoring.xlsx');
-  });
 
-  clearBtn.addEventListener('click', () => {
-    if (confirm('Are you sure you want to clear all performance data? This action cannot be undone.')) {
-      performanceData = [];
+    function addPerformanceEntry(entry) {
+      getCurrentData().push(entry);
       saveData();
       updateTable();
       updateCharts();
     }
-  });
 
-  // Load data initially
-  loadData();
-  updateTable();
-  updateCharts();
-</script>
+    function updateTable() {
+      const data = getCurrentData();
+      tableBody.innerHTML = '';
+      data.forEach(({ playerName, matchesPlayed, wins, losses, points, date }) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${playerName}</td>
+          <td>${matchesPlayed}</td>
+          <td>${wins}</td>
+          <td>${losses}</td>
+          <td>${points}</td>
+          <td>${formatDate(date)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function aggregateDataForCharts() {
+      const data = getCurrentData();
+      const grouped = {};
+      data.forEach(({ playerName, matchesPlayed, wins, losses, points, date }) => {
+        if (!grouped[playerName]) {
+          grouped[playerName] = { matches: 0, wins: 0, losses: 0, totalPoints: 0, dates: [], pointsByDate: {} };
+        }
+        grouped[playerName].matches += +matchesPlayed;
+        grouped[playerName].wins += +wins;
+        grouped[playerName].losses += +losses;
+        grouped[playerName].totalPoints += +points;
+        if (!grouped[playerName].pointsByDate[date]){
+          grouped[playerName].pointsByDate[date] = 0;
+        }
+        grouped[playerName].pointsByDate[date] += +points;
+        if (!grouped[playerName].dates.includes(date)) {
+          grouped[playerName].dates.push(date);
+        }
+      });
+      return grouped;
+    }
+
+    function updateCharts() {
+      const aggregated = aggregateDataForCharts();
+      const players = Object.keys(aggregated);
+      const winRatios = players.map(name => {
+        const player = aggregated[name];
+        if (player.matches === 0) return 0;
+        return ((player.wins / player.matches) * 100).toFixed(1);
+      });
+
+      if (winRatioChart) winRatioChart.destroy();
+      const ctxWin = document.getElementById('winRatioChart').getContext('2d');
+      winRatioChart = new Chart(ctxWin, {
+        type: 'bar',
+        data: {
+          labels: players,
+          datasets: [{
+            label: 'Win %',
+            data: winRatios,
+            backgroundColor: '#bb86fc',
+            borderRadius: 4,
+            barPercentage: 0.6,
+            minBarLength: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: { duration: 500 },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { stepSize: 20, color: '#ccc' },
+              title: { display: true, text: 'Win Percentage', color: '#bb86fc' },
+              grid: { color: '#333' }
+            },
+            x: {
+              ticks: { color: '#eee', maxRotation: 45, minRotation: 30 },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#bb86fc' } },
+            tooltip: {
+              backgroundColor: '#333',
+              titleColor: '#bb86fc',
+              bodyColor: '#eee'
+            }
+          }
+        }
+      });
+
+      let allDatesSet = new Set();
+      players.forEach(name => {
+        aggregated[name].dates.forEach(d => allDatesSet.add(d));
+      });
+      const allDates = Array.from(allDatesSet).sort();
+
+      const datasetsPoints = players.map((name, idx) => {
+        const pdata = aggregated[name];
+        const pointsArr = allDates.map(date => pdata.pointsByDate[date] || 0);
+        const colorHue = (idx * 360 / players.length) % 360;
+        return {
+          label: name,
+          data: pointsArr,
+          borderColor: `hsl(${colorHue}, 70%, 70%)`,
+          backgroundColor: `hsla(${colorHue}, 70%, 70%, 0.3)`,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          borderWidth: 2
+        };
+      });
+
+      if (pointsOverTimeChart) pointsOverTimeChart.destroy();
+      const ctxPoints = document.getElementById('pointsOverTimeChart').getContext('2d');
+      pointsOverTimeChart = new Chart(ctxPoints, {
+        type: 'line',
+        data: {
+          labels: allDates.map(d => formatDate(d)),
+          datasets: datasetsPoints
+        },
+        options: {
+          responsive: true,
+          animation: { duration: 700 },
+          interaction: { mode: 'nearest', intersect: false },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' },
+              title: { display: true, text: 'Points', color: '#bb86fc' }
+            },
+            x: {
+              ticks: { maxRotation: 45, minRotation: 30, color: '#eee' },
+              grid: { display: false },
+              title: { display: true, text: 'Date', color: '#bb86fc' }
+            }
+          },
+          plugins: {
+            legend: { display: true, position: 'top', labels: { color: '#bb86fc' } },
+            tooltip: {
+              backgroundColor: '#333',
+              titleColor: '#bb86fc',
+              bodyColor: '#eee'
+            }
+          }
+        }
+      });
+    }
+
+    function switchTab(newGame) {
+      if (currentGame === newGame) return;
+      currentGame = newGame;
+
+      tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.game === currentGame);
+        btn.setAttribute('aria-selected', btn.dataset.game === currentGame ? 'true' : 'false');
+        btn.tabIndex = btn.dataset.game === currentGame ? 0 : -1;
+      });
+
+      if (!allPerformanceData[currentGame]) allPerformanceData[currentGame] = [];
+      saveData();
+
+      updateTable();
+      updateCharts();
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.game));
+      btn.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          let idx = Array.from(tabButtons).indexOf(e.target);
+          if (e.key === 'ArrowRight') idx = (idx + 1) % tabButtons.length;
+          else idx = (idx - 1 + tabButtons.length) % tabButtons.length;
+          tabButtons[idx].focus();
+        }
+      });
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const playerName = form.playerName.value.trim();
+      const matchesPlayed = Number(form.matchesPlayed.value);
+      const wins = Number(form.wins.value);
+      const losses = Number(form.losses.value);
+      const points = Number(form.points.value);
+      const date = form.date.value;
+
+      if (!playerName || matchesPlayed < 0 || wins < 0 || losses < 0 || points < 0 || !date) {
+        alert('Please enter valid values for all fields.');
+        return;
+      }
+      if (wins + losses > matchesPlayed) {
+        alert('Wins + Losses cannot exceed Matches Played.');
+        return;
+      }
+
+      addPerformanceEntry({playerName, matchesPlayed, wins, losses, points, date});
+      form.reset();
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const data = getCurrentData();
+      if(data.length === 0) {
+        alert('Add some performance data first!');
+        return;
+      }
+      const wsData = [
+        ['Player Name', 'Matches Played', 'Wins', 'Losses', 'Points', 'Date'],
+        ...data.map(({playerName,matchesPlayed,wins,losses,points,date}) => [
+          playerName,matchesPlayed,wins,losses,points,date
+        ])
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, currentGame.charAt(0).toUpperCase() + currentGame.slice(1));
+      XLSX.writeFile(wb, `TCG_Player_Performance_${currentGame}.xlsx`);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if(confirm(`Are you sure you want to clear all performance data for "${currentGame}"? This action cannot be undone.`)) {
+        allPerformanceData[currentGame] = [];
+        saveData();
+        updateTable();
+        updateCharts();
+      }
+    });
+
+    // Initialize on page load
+    loadData();
+    switchTab(currentGame);
+  </script>
 </body>
 </html>
-
